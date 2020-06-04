@@ -1,14 +1,31 @@
-import React from "react";
+import React,{useEffect, useState} from "react";
 import {Link} from 'react-router-dom';
 import { FiArrowLeft} from 'react-icons/fi'
+import {Map, TileLayer, Marker} from 'react-leaflet'
+import api from '../../services/api';
 
 import './style.css'
 import logo from'../../assets/logo.svg'
 
+interface Item {
+    id: number,
+    title: string,
+    image_url: string
+}
+
+const CreatePoint = () =>{
 
 
+    const [itens, setItens] = useState<Item[]>([]);
 
-const createPoint = ()=>{
+    useEffect(()=>{
+        api.get('itens').then(
+            response => {
+                setItens(response.data)
+            }
+        )
+    }, []);
+    
     return (
         <div id="page-create-point">
             <header>
@@ -68,6 +85,15 @@ const createPoint = ()=>{
                         <span>Selecione o endereço no mapa</span>
                     </legend>
 
+                    <Map center={[-23.444454,-50.5653303]} zoom={15}>
+                        <TileLayer
+                            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+
+                        <Marker position={[-23.444454,-50.5653303]} />
+                    </Map>
+
                     <div className="field-group">
                         <div className="field">
                             <label htmlFor="uf">Estado (UF)</label>
@@ -94,31 +120,18 @@ const createPoint = ()=>{
                     </legend>
 
                     <ul className="items-grid">
-                        <li>
-                            <img src="http://localhost:3000/uploads/oleo.svg" alt=""/>
-                            <span>Oléo de cozinha</span>
-                        </li>
-                        <li>
-                            <img src="http://localhost:3000/uploads/oleo.svg" alt=""/>
-                            <span>Oléo de cozinha</span>
-                        </li>
-                        <li>
-                            <img src="http://localhost:3000/uploads/oleo.svg" alt=""/>
-                            <span>Oléo de cozinha</span>
-                        </li>
-                        <li>
-                            <img src="http://localhost:3000/uploads/oleo.svg" alt=""/>
-                            <span>Oléo de cozinha</span>
-                        </li>
-                        <li>
-                            <img src="http://localhost:3000/uploads/oleo.svg" alt=""/>
-                            <span>Oléo de cozinha</span>
-                        </li>
-                        <li>
-                            <img src="http://localhost:3000/uploads/oleo.svg" alt=""/>  
-                            <span>Oléo de cozinha</span>
-                        </li>
+                        {
+                            itens.map(
+                                item =>(
+                                    <li key={item.id}>
+                                        <img src={item.image_url} alt={item.title} />
+                                        <span>{item.title}</span>
+                                    </li>
+                                )
+                            )
+                        }
                     </ul>
+
                 </fieldset>
 
                 <button type="submit">
@@ -129,4 +142,4 @@ const createPoint = ()=>{
     );
 }
 
-export default createPoint;
+export default CreatePoint;
