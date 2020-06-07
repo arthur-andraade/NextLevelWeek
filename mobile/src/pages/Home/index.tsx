@@ -3,22 +3,70 @@ import {Feather as Icon} from '@expo/vector-icons';
 import { Image, View, StyleSheet , Text, ImageBackground, TextInput} from "react-native";
 import {RectButton} from 'react-native-gesture-handler'
 import { useNavigation } from '@react-navigation/native'
+import RNPickerSelect from 'react-native-picker-select' 
+import axios from 'axios';
+
+interface IBGEUFResponse {
+  sigla: string
+}
+
+interface IBGECityResponse {
+  nome: string
+}
 
 
 const Home = () => {
 
     const navigation = useNavigation();
-    const [uf, setUf] = useState('');
-    const [city, setCity] = useState('');
+    const [ufs, setUfs] = useState<string[]>([]);
+    const [cities, setCities] = useState<string[]>([]);
+    const [selectedUf, setSelectedUf] = useState('0')
+    const [selectedCity, setSelecteCity] = useState('0')
+
+    // Acessing API of IBGE
+    useEffect(
+      () => {
+        axios.get<IBGEUFResponse []>('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then(
+          res => {
+            const ufsInitial = res.data.map(
+              uf => uf.sigla
+            )
+            setUfs(ufsInitial)
+          }
+        )
+      }
+    )
+    useEffect(
+      ()=>{
+        if(selectedUf === '0') return;
+        axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`).then(
+          res => {
+            const citiesInitial = res.data.map(
+              city => city.nome
+            )
+            setCities(citiesInitial);
+          }
+        )
+      }
+    , [selectedUf])
 
     function handleNavigatePoints(){
       navigation.navigate('Points', {
-        uf,
-        city
+        selectedUf,
+        selectedCity
       });
     }
 
+    function handleSelectedUf( ufSelected : string){
+      console.log(ufSelected)
+      setSelectedUf(ufSelected);
+    }
     
+    function  handleSelectedCity( city : string){
+      console.log(city)
+      setSelecteCity(city);
+    }
+
     return (
         <ImageBackground 
             source={require('../../assets/home-background.png')} 
@@ -32,9 +80,40 @@ const Home = () => {
             </View>
 
             <View style={styles.footer}>
+              
+              <RNPickerSelect 
+                placeholder ={ {label: "Selecione UF do seu Estado"}}
+                items = {
+                  ufs.map( 
+                    uf => (
+                      {
+                        key: uf,
+                        label: uf,
+                        value: uf,
+                      }
+                    )
+                  )
+                }
+                onValueChange = {(uf)=> handleSelectedUf(uf)}
+              />
 
-              <TextInput style={styles.input} placeholder="Digite UF" value= {uf} onChangeText={setUf} maxLength ={2} autoCapitalize="characters" autoCorrect={false}/>
-              <TextInput style={styles.input} placeholder="Digite cidade" value= {city} onChangeText={setCity} autoCorrect= {false}/>
+              <RNPickerSelect 
+                disabled={selectedUf === '0' || selectedUf === undefined}
+                placeholder ={ {label: "Selecione sua cidade"}}
+                items = {
+                  cities.map( 
+                    city => (
+                      {
+                        key: city,
+                        label: city,
+                        value: city,
+                      }
+                    )
+                  )
+                }
+                onValueChange = {(city)=> handleSelectedCity(city)}
+              />
+
               <RectButton style={styles.button} onPress={handleNavigatePoints}>
                   <View style={styles.buttonIcon}>
                     <Text>
