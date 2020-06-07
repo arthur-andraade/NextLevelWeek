@@ -110,7 +110,7 @@ class PointController{
 
         const del = await kness("points").del();
         const delPivo = await kness('point_itens').del();
-        const delItens = await kness('itens').del();
+        //const delItens = await kness('itens').del();
         return res.send("Deletado");
     }
 
