@@ -82,6 +82,16 @@ const Home = () => {
             <View style={styles.footer}>
               
               <RNPickerSelect 
+                style={
+                  { 
+                    inputAndroid:{
+                      marginBottom: 5,
+                    },
+                    placeholder: {
+                      color: '#6C6C80',
+                    }
+                  }
+                }
                 placeholder ={ {label: "Selecione UF do seu Estado"}}
                 items = {
                   ufs.map( 
@@ -97,7 +107,16 @@ const Home = () => {
                 onValueChange = {(uf)=> handleSelectedUf(uf)}
               />
 
-              <RNPickerSelect 
+              <RNPickerSelect
+                style={
+                  {
+                    inputAndroid:{
+                      marginBottom: 10
+                    },
+                    placeholder: {
+                      color: '#6C6C80',
+                    },
+                  }}
                 disabled={selectedUf === '0' || selectedUf === undefined}
                 placeholder ={ {label: "Selecione sua cidade"}}
                 items = {

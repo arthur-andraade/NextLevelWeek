@@ -7,6 +7,7 @@ import axios from 'axios';
 import './style.css'
 import logo from'../../assets/logo.svg'
 import {LeafletMouseEvent} from 'leaflet'
+import Dropzone from '../../components/Dropzone/index';
 // Interfaces bellow
 interface Item {
     id: number,
@@ -39,6 +40,7 @@ const CreatePoint = () =>{
     const [selectedCity, setSelectedCity] = useState('0');
     const [selectItens, setSelectedItens] = useState<number[]>([])
     const [selectedPositon, setSelectedPositon] = useState<[number, number]>([0,0]);
+    const [selectedFile, setSelectedFile] = useState<File>();
     const history = useHistory();
     
     //UseEffects
@@ -147,15 +149,18 @@ const CreatePoint = () =>{
         const [latitude, longitude] = selectedPositon;
         const itens = selectItens;
 
-        const data = {
-            name,
-            email,
-            whatsapp,
-            city,
-            uf,
-            itens,
-            longitude,
-            latitude,
+        const data = new FormData();   
+        data.append('name', name);
+        data.append('email', email);
+        data.append('whatsapp', whatsapp);
+        data.append('city', city);
+        data.append('uf', uf);
+        data.append('itens', itens.join(','));
+        data.append('longitude', String(longitude));
+        data.append('latitude', String(latitude));
+        
+        if(selectedFile){
+            data.append('image', selectedFile);
         }
 
         await api.post('points', data);
@@ -177,6 +182,8 @@ const CreatePoint = () =>{
             <form onSubmit={handleSubmit}>
                 <h1>Cadastro do <br/> ponto de coleta</h1>
                 
+                <Dropzone onFileUploaded={setSelectedFile}/>
+
                 <fieldset>
                     <legend>
                         <h2>Dados</h2>

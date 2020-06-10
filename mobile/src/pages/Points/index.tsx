@@ -20,7 +20,8 @@ interface Points{
   name: string,
   image: string,
   latitude: number,
-  longitude: number
+  longitude: number,
+  image_url: string
 }
 
 interface Params{
@@ -67,7 +68,6 @@ const Points = () => {
     }, [])
 
     useEffect(()=>{
-      console.log(selectedItens)
       api.get('points', {
         params : {
           city: routeParams.selectedCity,
@@ -139,8 +139,8 @@ const Points = () => {
                             onPress = {()=>{handleNavigateToDetail(point.id)}}
                           > 
                           <View style={styles.mapContainer}>
-                            <Image style={styles.mapMarkerImage}   source={{uri: point.image}} />
-                            <Text style={styles.mapMarkerTitle}> {point.name}</Text>
+                            <Image style={styles.mapMarkerImage}   source={{uri: point.image_url}} />
+                            <Text style={styles.mapMarkerTitle} > {point.name}</Text>
                           </View>             
                           </Marker>
                         )
@@ -169,7 +169,7 @@ const Points = () => {
                     ]} 
                     onPress={()=>{handleSelectItem(item.id)}}>
                     <SvgUri width={42} height={42} uri = {item.image_url}></SvgUri>
-                    <Text style={styles.itemTitle}>{item.title}</Text>
+                    <Text style={styles.itemTitle} >{item.title}</Text>
                   </TouchableOpacity>
                 )
               )
@@ -219,8 +219,8 @@ const styles = StyleSheet.create({
   },
 
   mapMarkerContainer: {
-    width: 90,
-    height: 70,
+    width: 100,
+    height: 90,
     backgroundColor: "#34CB79",
     flexDirection: "column",
     borderRadius: 8,
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
 
   mapMarkerImage: {
     width: 90,
-    height: 45,
+    height: 32,
     resizeMode: "cover",
   },
 
@@ -239,9 +239,9 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto_400Regular",
     color: "#FFF",
     fontSize: 13,
-    lineHeight: 23,
+    lineHeight: 15,
     backgroundColor: 'green',
-    textAlign: 'center'
+    textAlign: 'center',
   },
 
   itemsContainer: {
