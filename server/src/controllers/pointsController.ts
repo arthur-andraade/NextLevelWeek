@@ -17,7 +17,7 @@ class PointController{
         } = req.body;
         
         const point = {
-            image: "https://images.unsplash.com/photo-1556767576-5ec41e3239ea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=40",
+            image: req.file.filename, 
             name,
             email,
             whatsapp,
@@ -34,14 +34,17 @@ class PointController{
                 const insertedIds = await kness('points').insert(point).transacting(trx);
                 const point_id = insertedIds[0];
 
-                const pointItens = itens.map(
-                    (item_id : Number) => {
-                        return {
-                            item_id,
-                            point_id,
-                        };
-                    }
-                )
+                const pointItens = itens
+                    .split(',')
+                    .map((item: string) =>Number(item.trim()))
+                    .map(
+                        (item_id : Number) => {
+                            return {
+                                item_id,
+                                point_id,
+                            };
+                        }
+                    );
                 
                 await kness('point_itens').insert(pointItens).transacting(trx);
 
@@ -75,11 +78,16 @@ class PointController{
                 "message": "Point not found"
             });
         }else{
+            
+            const serializedPoint = {
+                ...resultPoint,
+                image_url: `http://192.168.0.107:3050/uploads/${resultPoint.image}`
+            }
 
             const itens = await kness('itens').join('point_itens', 'itens.id', '=','point_itens.item_id')
             .where('point_itens.point_id', idPoint);
 
-            return resp.json({resultPoint, itens});
+            return resp.json({resultPoint : serializedPoint, itens});
         }
 
     }
@@ -102,10 +110,19 @@ class PointController{
             .distinct()
             .select('points.*');
         
-        return res.json(points);
+        const serializedPoint = points.map(
+            point =>{
+                return {
+                    ...point,
+                    image_url: `http://192.168.0.107:3050/uploads/${point.image}`
+                }
+            }
+        )
+
+        return res.json(serializedPoint);
     }
 
-    // Teste
+    // Test 
     async deleteAll(req: Request, res: Response){
 
         const del = await kness("points").del();
